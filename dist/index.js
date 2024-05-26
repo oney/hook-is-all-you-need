@@ -16,6 +16,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.testPackage = void 0;
 __exportStar(require("./counter"), exports);
+__exportStar(require("./interceptor"), exports);
 const testPackage = () => {
     return "Hello World!";
 };
