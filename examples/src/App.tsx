@@ -1,25 +1,25 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import {
+  Interceptor,
+  InterceptorContext,
+  ScopeProvider,
+} from "hook-is-all-you-need";
+import { Counter } from "./components/Counter";
+
+const interceptor = new Interceptor();
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <InterceptorContext.Provider value={interceptor}>
+      <ScopeProvider scope="Example">
+        <ScopeProvider scope="c10">
+          <Counter base={10} />
+        </ScopeProvider>
+        <ScopeProvider scope="c100">
+          <Counter base={100} />
+        </ScopeProvider>
+      </ScopeProvider>
+    </InterceptorContext.Provider>
   );
 }
 

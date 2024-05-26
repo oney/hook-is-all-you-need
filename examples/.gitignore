@@ -4,6 +4,7 @@
 /node_modules
 /.pnp
 .pnp.js
+/src/hook-is-all-you-need
 
 # testing
 /coverage
