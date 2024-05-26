@@ -1,0 +1,14 @@
+{
+  "name": "hook-is-all-you-need",
+  "version": "0.1.0",
+  "description": "Hook is all you need",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Howard Yang",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  }
+}
