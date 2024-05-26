@@ -1,22 +1,24 @@
 # Hook Is All You Need (HIAYN)
 
-Hook Is All You Need (HIAYN) is a design pattern that helps React developers manage complex state without learning any third-party state management library.
+Hook Is All You Need (HIAYN) is a design pattern for React developers to manage complex state without needing to learn any third-party state management libraries.
 
-HIAYN is 0 API, 0 learning curve, 0 boilerplate, performant, DevTools-powered (time travel and logging), async flow, compositional, immutable and decentralized state, test-driven, TypeScript-safe state management pattern.
+HIAYN offers a 0-API, 0-learning curve, 0-boilerplate solution that is performant, DevTools-powered (with time travel and logging), supports async flow, and provides compositional, immutable, decentralized state management. It is also test-friendly and TypeScript-safe.
 
-Have you ever wondered why React developers suddenly need to learn a third-party state management after we have already learned the native hooks (such as useState, useContext)? And the philosophy of these third-party state management differs a lot from React itself which make us look like not using React anymore. Do we really need third-party state management?
+## Why HIAYN?
 
-No we don't need to. React built-in hooks such as useState, useCallback and useContext is powerful to manage very complex state. It's just that these design patterns are not so structural and lack of devtools support.
+Have you ever wondered why React developers often have to learn third-party state management libraries after mastering React hooks? The philosophy behind these libraries often diverges significantly from React itself, making it feel like you're not using React anymore. But do we really need them?
+
+No, we don’t. React’s built-in hooks, such as `useState`, `useCallback`, and `useContext`, are powerful enough to manage even the most complex state. The challenge is that the design patterns are not well-structured and lack DevTools support.
 
 # HIAYN Interceptor
 
-HIAYN's Interceptor lets us be able to view state changes from any `useState` with the triggering `useCallback` in Redux DevTools.
+HIAYN's Interceptor allows you to view state changes from any `useState` hook, along with the triggering `useCallback`, in Redux DevTools.
 
 ![devtools](./assets/devtools-1.jpg)
 
-We can even click "Jump" button of an action to get back to that state.
+You can even click the "Jump" button on an action to time travel to that state.
 
-The code is
+Here’s an example:
 
 ```tsx
 import { useState, useCounter } from "hook-is-all-you-need";
@@ -44,6 +46,8 @@ function Counter({ base }: { base: number }) {
 }
 ```
 
+Let's explore it in depth
+
 ## Action
 
 ```js
@@ -52,12 +56,12 @@ args: [3];
 deps: [10];
 ```
 
-- `@Example.c10|` is the scopes which will be talked later
+- `@Example.c10|` refers to the scopes, which we’ll discuss later
 - `Counter` is the function component name
-- `counter` is the variable name of the hook call (`const counter = useCounter(`)
-- `increment` is the callback variable name (`const increment = useCallback(`)
-- `args` is the arguments of `increment` callback (`(mul: number)`)
-- `deps` is the dependency list of `increment` callback (`[base]`)
+- `counter` is the variable name of the hook call (`const counter = useCounter`)
+- `increment` is the callback variable name (`const increment = useCallback`)
+- `args` are the arguments of the `increment` callback (`(mul: number)`)
+- `deps` are the dependencies of the `increment` callback (`[base]`)
 
 ## State
 
@@ -66,12 +70,12 @@ deps: [10];
 ```
 
 - `@Example.c10|`, `Counter`, `counter` are the same as above
-- `count` is the state variable name (`const [count, setCount] = useState(`)
-- state changed from `0` to `30`.
+- `count` is the state variable name (`const [count, setCount] = useState`)
+- The state changed from `0` to `30`.
 
 ## Scopes
 
-`Counter` component is used like
+The `Counter` component is used in `App`:
 
 ```tsx
 import { ScopeProvider } from "hook-is-all-you-need";
@@ -90,13 +94,13 @@ function App() {
 }
 ```
 
-`Example` is from the parent `ScopeProvider` and `c10` is from the child `ScopeProvider`.
+`Example` is from the parent `ScopeProvider`, and `c10` is from the child `ScopeProvider`.
 
-Scopes help us distinguish multiple rendering of a same component, and scopes are concatenable.
+Scopes help distinguish multiple instances of the same component and are concatenable.
 
 ## Setup
 
-Initializing `Interceptor` and wrap `InterceptorContext` in your root component.
+Initialize `Interceptor` and wrap `InterceptorContext` around your root component.
 
 ```tsx
 import { Interceptor, InterceptorContext } from "hook-is-all-you-need";
@@ -110,8 +114,54 @@ root.render(
 );
 ```
 
-And use `useState` and `useCallback` from `hook-is-all-you-need` package instead of `react`.
+Use `useState` and `useCallback` from the `hook-is-all-you-need` package instead of `react`.
 
 ## Concept
 
-That's all you need to use HIAYN! It's 0 API, 0 learning curve, 0 boilerplate, DevTools-powered (time travel and logging), immutable and decentralized state, state management pattern as I promised you, right?
+That’s all you need to use HIAYN!
+
+It’s a 0-API, 0-learning curve, 0-boilerplate, DevTools-powered, immutable and decentralized state management pattern, as promised.
+
+### Core Concepts
+
+- Custom hooks act as data models or stores in Redux
+- Callbacks are actions of reducers:
+  - The callback itself is the action type
+  - `args` are the action payload
+  - `deps` are static data in the action creator
+- Reducers are non-reusable and unnecessary
+
+## Async flow
+
+For example, let’s say we have an `incrementApi` callback. It sets `pending` to true, updates `count` after the API promise resolves, and then sets `pending` to false.
+
+```tsx
+function useCounter() {
+  // ...
+  const incrementApi = useCallback(async function () {
+    setPending(true);
+    const inc = await api(base);
+    setCount((count) => count + inc);
+    setPending(false);
+  }, [base]);
+```
+
+HIAYN Interceptor supports asynchronous operations in callbacks, ensuring state changes are accurately linked to the correct callbacks.
+
+![devtools async](./assets/devtools-async.jpg)
+
+For async callbacks, you need to change
+
+- `async function` to a generator function `function*`
+- `await` to `yield`.
+
+```tsx
+function useCounter() {
+  // ...
+  const incrementApi = useCallback(function* () { // async function -> function*
+    setPending(true);
+    const inc = yield api(base); // await -> yield
+    setCount((count) => count + inc);
+    setPending(false);
+  }, [base]);
+```
