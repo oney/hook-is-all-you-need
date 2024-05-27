@@ -2,7 +2,7 @@
 
 Hook Is All You Need (HIAYN) is a design pattern for React developers to manage complex state without needing to learn any third-party state management libraries.
 
-HIAYN offers a 0-API, 0-learning curve, 0-boilerplate solution that is performant, DevTools-powered (with time travel and logging), supports async flow, and provides compositional, immutable, decentralized state management. It is also test-friendly and TypeScript-safe.
+HIAYN offers a 0-API, 0-learning curve, 0-boilerplate solution that is performant, DevTools-powered (with time travel and logging), supports async flow, and provides compositional, immutable, multi-store state management. It is also test-friendly and TypeScript-safe.
 
 ## Why HIAYN?
 
@@ -137,13 +137,16 @@ hookIsAllYouNeed(React);
 
 // ...
 ReactDOM.render(<App />, document.getElementById("root"));
+
+// Then we still import from react
+import { useState, useCallback } from "react";
 ```
 
 ## Concept
 
 That’s all you need to use HIAYN!
 
-It’s a 0-API, 0-learning curve, 0-boilerplate, DevTools-powered, test-friendly, TypeScript-safe, immutable and decentralized state management pattern, as promised.
+It’s a 0-API, 0-learning curve, 0-boilerplate, DevTools-powered, test-friendly, TypeScript-safe, compositional, immutable and multi-store state management pattern, as promised.
 
 ### Core Concepts
 
@@ -158,7 +161,7 @@ It’s a 0-API, 0-learning curve, 0-boilerplate, DevTools-powered, test-friendly
 
 ## Async flow
 
-For example, let’s say we have an `incrementApi` callback. It sets `pending` to true, updates `count` after the API promise resolves, and then sets `pending` to false.
+For example, let’s say we have an `incrementApi` callback. It sets `pending` to true, and after the API promise resolves, it updates `count` and `pending` to false.
 
 ```tsx
 function useCounter() {
@@ -191,4 +194,82 @@ function useCounter() {
   }, [base]);
 ```
 
-You can find a fully functional example in the "examples" folder.
+You can find a fully functional example in the ["examples"](./examples/) folder.
+
+## Global store
+
+Using `useState` with custom hooks might seem limited to creating local state, but that's not the case. You can import other custom hooks to form a comprehensive global store, similar to Redux's `configureStore`, at any nested depth level.
+
+To avoid performance issues with Context re-rendering, `use-context-selector` is needed to use.
+
+PS: Hey React! Just implement the f\*cking context selector!
+
+```tsx
+import { createContext, useContextSelector } from "use-context-selector";
+
+import useAuth from "useAuth";
+import useTodos from "useTodos";
+import useSettings from "useSettings";
+import useDialog from "useDialog";
+
+function useStore() {
+  return {
+    auth: useAuth(),
+    todos: useTodos(),
+    settings: useSettings(),
+    dialog: useDialog(),
+  };
+}
+
+const StoreContext = createContext(undefined);
+
+const StoreProvider = ({ children }) => (
+  <StoreContext.Provider value={useStore()}>{children}</StoreContext.Provider>
+);
+
+function TodosApp() {
+  const todos = useContextSelector(StoreContext, (s) => s.todos);
+}
+```
+
+However, in my opinion, a single store is an anti-pattern. Single store is difficult to structure and manage in both small and large applications.
+
+A better approach is to create a Context for each custom hook and use it directly. You can even create custom hooks to manipulate multiple data sources. This approach represents true composition, unlike Redux's `extraReducers`.
+
+```tsx
+function Auth() {
+  const hasAuth = useContextSelector(AuthContext, (s) => s.hasAuth);
+}
+
+function TodosHeader() {
+  const addTodo = useContextSelector(TodoContext, (s) => s.addTodo);
+}
+
+function useLogout() {
+  const clearAuth = useContextSelector(AuthContext, (s) => s.clearAuth);
+  const clearTodos = useContextSelector(TodoContext, (s) => s.clearTodos);
+
+  return useCallback(() => {
+    clearAuth();
+    clearTodos();
+  }, [clearAuth, clearTodos]);
+}
+```
+
+Provider hell can be a problem, but [`react-nest`](https://www.npmjs.com/package/react-nest) can easily solve it. It's much simpler than Redux, isn't it?
+
+```tsx
+import Nest from "react-nest";
+
+function Root() {
+  return (
+    <Nest>
+      <AuthProvider />
+      <TodosProvider />
+      <SettingsProvider />
+      <DialogProvider />
+      <App />
+    </Nest>
+  );
+}
+```
