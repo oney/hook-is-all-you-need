@@ -2,16 +2,39 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.useCallback = void 0;
 const react_1 = require("react");
+const real_react_1 = require("../../hookIsAllYouNeed/real-react");
 const interceptor_1 = require("../interceptor");
 const scope_1 = require("../interceptor/scope");
 const utils_1 = require("../utils");
 const stacktrace_1 = require("./stacktrace");
 function useCallback(callback, deps) {
     const interceptor = (0, react_1.useContext)(interceptor_1.InterceptorContext);
-    if (!interceptor || !interceptor.enabled)
+    if (!interceptor || !interceptor.enabled) {
         // @ts-ignore
         // eslint-disable-next-line react-hooks/rules-of-hooks
-        return (0, react_1.useCallback)(callback, deps);
+        return real_react_1.React.useCallback((...args) => {
+            // @ts-ignore
+            const result = callback(...args);
+            if (!(0, utils_1.isGenerator)(result))
+                return result;
+            const generator = result;
+            return (async () => {
+                let result = generator.next();
+                while (!result.done) {
+                    try {
+                        result = generator.next(await result.value);
+                    }
+                    catch (error) {
+                        result = generator.throw(error);
+                    }
+                }
+                return result.value;
+            })();
+        }, deps);
+    }
+    // @ts-ignore
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    // return React.useCallback(callback, deps);
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const scope = (0, scope_1.useScope)();
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -22,9 +45,8 @@ function useCallback(callback, deps) {
         if (interceptor.enableSourceMap)
             definitionRef.current.trace = stacktrace_1.tra.get();
     }
-    // @ts-ignore
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    return (0, react_1.useCallback)(
+    return real_react_1.React.useCallback(
     // @ts-ignore
     (...args_) => {
         var _a;

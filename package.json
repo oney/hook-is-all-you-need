@@ -1,8 +1,13 @@
 {
   "name": "hook-is-all-you-need",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "description": "Hook is all you need",
   "main": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oney/hook-is-all-you-need.git"
+  },
+  "homepage": "https://github.com/oney/hook-is-all-you-need",
   "files": [
     "dist"
   ],
@@ -21,6 +26,13 @@
   },
   "author": "Howard Yang",
   "license": "MIT",
+  "keywords": [
+    "react",
+    "state",
+    "management",
+    "hook",
+    "context"
+  ],
   "devDependencies": {
     "@types/react": "^18.3.3",
     "rimraf": "^5.0.7",

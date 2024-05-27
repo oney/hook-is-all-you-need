@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.useState = void 0;
 const react_1 = require("react");
+const real_react_1 = require("../../hookIsAllYouNeed/real-react");
 const interceptor_1 = require("../interceptor");
 const scope_1 = require("../interceptor/scope");
 const utils_1 = require("../utils");
@@ -11,7 +12,7 @@ function useState(initialState) {
     // @ts-ignore
     // eslint-disable-next-line react-hooks/rules-of-hooks
     if (!interceptor || !interceptor.enabled)
-        return (0, react_1.useState)(initialState);
+        return real_react_1.React.useState(initialState);
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const scope = (0, scope_1.useScope)();
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -28,7 +29,7 @@ function useState(initialState) {
         //   : initialState;
     }
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const [state, setState_] = (0, react_1.useState)(initialState);
+    const [state, setState_] = real_react_1.React.useState(initialState);
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const setState = (0, react_1.useCallback)(function (action_) {
         const [id, action] = interceptor
@@ -38,6 +39,7 @@ function useState(initialState) {
             prev = interceptor
                 ? interceptor.beforeState(prev, action, id, definitionRef.current)
                 : prev;
+            // @ts-ignore
             const next = (0, utils_1.resolveAction)(prev, action);
             return interceptor
                 ? interceptor.afterState(prev, next, action, id, definitionRef.current)
@@ -52,6 +54,7 @@ function useState(initialState) {
             interceptor === null || interceptor === void 0 ? void 0 : interceptor.cleanState(current);
         };
     }, [interceptor]);
+    // @ts-ignore
     // eslint-disable-next-line react-hooks/rules-of-hooks
     return (0, react_1.useMemo)(() => [state, setState], [state, setState]);
 }

@@ -9,8 +9,8 @@ export declare class Interceptor {
     middlewares: Middleware[];
     callbacks: number[];
     constructor(options?: {
-        enabled: boolean;
-        enableInProd: boolean;
+        enabled?: boolean;
+        enableInProd?: boolean;
         middlewares?: Middleware[];
     });
     initState: <T>(initialState: T, definition: Definition) => T;

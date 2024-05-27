@@ -106,6 +106,10 @@ Scopes are not necessary if your component names are unique.
 
 ## Setup
 
+```shell
+npm i hook-is-all-you-need
+```
+
 Initialize `Interceptor` and wrap `InterceptorContext` around your root component.
 
 ```tsx
