@@ -291,7 +291,7 @@ Note that Redux, Zustand, and Jotai do not entirely solve props drilling. While 
 
 React Context is already a robust Dependency Injection system.
 
-Essentially, a custom hook serves as a data model. For instance, consider a useTodos custom hook.
+Essentially, a custom hook serves as a data model. For instance, consider a `useTodos` custom hook.
 
 ```tsx
 export function useTodos() {
@@ -376,14 +376,12 @@ Define the `useTodo` hook as the Todo data model.
 
 ```tsx
 export function useTodo(id: number) {
-  const findIndex = (todos) => todos.findIndex((todo) => todo.id === id);
-
-  const todo = useCs(TodosCtx, ({ todos }) => todos[findIndex(todos)]);
   const updateTodos = useCs(TodosCtx, ({ updateTodos }) => updateTodos);
 
   const updateTodo = (draft) =>
     updateTodos((todos) => {
-      draft(todos[findIndex(todos)]);
+      const index = todos.findIndex((todo) => todo.id === id);
+      draft(todos[index]);
     });
 
   return { todo, updateTodo };
@@ -398,14 +396,13 @@ And the `TodoItem` component looks like:
 export function TodoItem({ id }) {
   return (
     <TodoCtx.Provider value={useTodo(id)}>
-      <_Item />
+      <_TodoItem />
     </TodoCtx.Provider>
   );
 }
 
 function _TodoItem() {
-  const title = useCs(TodoCtx, (ctx) => ctx.todo.title);
-  const updateTodo = useCs(TodoCtx, (ctx) => ctx.todo.updateTodo);
+  const update = useCs(TodoCtx, (ctx) => ctx.todo.updateTodo);
 }
 ```
 
@@ -413,4 +410,4 @@ With this approach, any deeply nested child components of `TodoItem` can access 
 
 You can find a fully working todo example in the ["examples"](./examples/) folder.
 
-unstated-next and constate are doing the same thing but
+Although [jotai-scope](https://jotai.org/docs/extensions/scope), [unstated-next](https://github.com/jamiebuilds/unstated-next) and [constate](https://github.com/diegohaz/constate) can achieve the same functionality, they do not view React Context as a powerful DI pattern.
