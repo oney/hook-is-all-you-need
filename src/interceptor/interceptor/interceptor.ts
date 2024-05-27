@@ -12,8 +12,8 @@ export class Interceptor {
   callbacks: number[] = [];
 
   constructor(options?: {
-    enabled: boolean;
-    enableInProd: boolean;
+    enabled?: boolean;
+    enableInProd?: boolean;
     middlewares?: Middleware[];
   }) {
     this.enabled = options?.enabled ?? true;

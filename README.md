@@ -21,7 +21,7 @@ You can even click the "Jump" button on an action to time travel to that state.
 Here’s the example:
 
 ```tsx
-import { useState, useCounter } from "hook-is-all-you-need";
+import { useState, useCallback } from "hook-is-all-you-need";
 
 function useCounter(base: number) {
   const [count, setCount] = useState(0);
@@ -111,7 +111,9 @@ Initialize `Interceptor` and wrap `InterceptorContext` around your root componen
 ```tsx
 import { Interceptor, InterceptorContext } from "hook-is-all-you-need";
 
-const interceptor = new Interceptor();
+const interceptor = new Interceptor({
+  enabled: process.env.NODE_ENV === "development",
+});
 
 root.render(
   <InterceptorContext.Provider value={interceptor}>
@@ -121,6 +123,21 @@ root.render(
 ```
 
 And use `useState` and `useCallback` from the `hook-is-all-you-need` package instead of `react`, as demonstrated in the example code above.
+
+```tsx
+import { useState, useCallback } from "hook-is-all-you-need";
+```
+
+To not manually modify `react` to `hook-is-all-you-need`, include the following at the top of your application's entry point file, similar to [why-did-you-render](https://github.com/welldone-software/why-did-you-render?tab=readme-ov-file#setup).
+
+```tsx
+import React from "react";
+import { hookIsAllYouNeed } from "hook-is-all-you-need";
+hookIsAllYouNeed(React);
+
+// ...
+ReactDOM.render(<App />, document.getElementById("root"));
+```
 
 ## Concept
 

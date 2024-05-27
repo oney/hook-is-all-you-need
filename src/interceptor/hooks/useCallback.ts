@@ -22,10 +22,30 @@ export function useCallback<TArgs extends any[], TReturn, C extends Function>(
   deps: DependencyList
 ): (...args: TArgs) => Promise<TReturn> | C {
   const interceptor = useContext(InterceptorContext);
-  if (!interceptor || !interceptor.enabled)
+  if (!interceptor || !interceptor.enabled) {
     // @ts-ignore
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    return React.useCallback(callback, deps);
+    return React.useCallback<any>((...args) => {
+      // @ts-ignore
+      const result = callback(...args);
+      if (!isGenerator(result)) return result;
+      const generator = result;
+      return (async () => {
+        let result = generator.next();
+        while (!result.done) {
+          try {
+            result = generator.next(await result.value);
+          } catch (error) {
+            result = generator.throw(error);
+          }
+        }
+        return result.value;
+      })();
+    }, deps);
+  }
+  // @ts-ignore
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  // return React.useCallback(callback, deps);
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const scope = useScope();
