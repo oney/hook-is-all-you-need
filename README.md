@@ -18,7 +18,7 @@ HIAYN's Interceptor allows you to view state changes from any `useState` hook, a
 
 You can even click the "Jump" button on an action to time travel to that state.
 
-Here’s an example:
+Here’s the example:
 
 ```tsx
 import { useState, useCounter } from "hook-is-all-you-need";
@@ -50,6 +50,8 @@ Let's explore it in depth
 
 ## Action
 
+useCallback is a Redux action.
+
 ```js
 type: "@Example.c10|Counter.counter.increment";
 args: [3];
@@ -64,6 +66,8 @@ deps: [10];
 - `deps` are the dependencies of the `increment` callback (`[base]`)
 
 ## State
+
+useState is a Redux reducer
 
 ```js
 @Example.c10|Counter.counter.count: 0 => 30
@@ -94,9 +98,11 @@ function App() {
 }
 ```
 
-`Example` is from the parent `ScopeProvider`, and `c10` is from the child `ScopeProvider`.
+In `@Example.c10|`, `Example` is from the parent `ScopeProvider`, and `c10` is from the child `ScopeProvider`.
 
 Scopes help distinguish multiple instances of the same component and are concatenable.
+
+Scopes are not necessary if your component names are unique.
 
 ## Setup
 
@@ -114,22 +120,24 @@ root.render(
 );
 ```
 
-Use `useState` and `useCallback` from the `hook-is-all-you-need` package instead of `react`.
+And use `useState` and `useCallback` from the `hook-is-all-you-need` package instead of `react`, as demonstrated in the example code above.
 
 ## Concept
 
 That’s all you need to use HIAYN!
 
-It’s a 0-API, 0-learning curve, 0-boilerplate, DevTools-powered, immutable and decentralized state management pattern, as promised.
+It’s a 0-API, 0-learning curve, 0-boilerplate, DevTools-powered, test-friendly, TypeScript-safe, immutable and decentralized state management pattern, as promised.
 
 ### Core Concepts
 
 - Custom hooks act as data models or stores in Redux
+  - Easy to test
+  - Compositional and supports `extraReducers` by nature
 - Callbacks are actions of reducers:
   - The callback itself is the action type
   - `args` are the action payload
   - `deps` are static data in the action creator
-- Reducers are non-reusable and unnecessary
+- Reducers are non-reusable and useless
 
 ## Async flow
 
@@ -150,7 +158,7 @@ HIAYN Interceptor supports asynchronous operations in callbacks, ensuring state 
 
 ![devtools async](./assets/devtools-async.jpg)
 
-For async callbacks, you need to change
+To make it work, for async callbacks, you need to change
 
 - `async function` to a generator function `function*`
 - `await` to `yield`.
@@ -165,3 +173,5 @@ function useCounter() {
     setPending(false);
   }, [base]);
 ```
+
+You can find a fully functional example in the "examples" folder.

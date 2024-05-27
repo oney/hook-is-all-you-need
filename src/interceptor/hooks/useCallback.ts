@@ -1,9 +1,5 @@
-import {
-  DependencyList,
-  useCallback as useReactCallback,
-  useContext,
-  useRef,
-} from "react";
+import { DependencyList, useContext, useRef } from "react";
+import { React } from "../../hookIsAllYouNeed/real-react";
 
 import { InterceptorContext } from "../interceptor";
 import { useScope } from "../interceptor/scope";
@@ -29,7 +25,7 @@ export function useCallback<TArgs extends any[], TReturn, C extends Function>(
   if (!interceptor || !interceptor.enabled)
     // @ts-ignore
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    return useReactCallback(callback, deps);
+    return React.useCallback(callback, deps);
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const scope = useScope();
@@ -41,9 +37,8 @@ export function useCallback<TArgs extends any[], TReturn, C extends Function>(
     if (interceptor.enableSourceMap) definitionRef.current.trace = tra.get();
   }
 
-  // @ts-ignore
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  return useReactCallback<T>(
+  return React.useCallback<any>(
     // @ts-ignore
     (...args_) => {
       const [id, args] = interceptor?.beforeCallback(

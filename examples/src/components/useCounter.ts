@@ -1,6 +1,7 @@
-import { useCallback, useState } from "hook-is-all-you-need";
+import { useCallback, useState } from "react";
+import { useCallback as useGenerator } from "hook-is-all-you-need";
 
-import { theApi } from "./api";
+import { api } from "./api";
 
 export function useCounter(base: number) {
   const [count, setCount] = useState(0);
@@ -15,10 +16,10 @@ export function useCounter(base: number) {
     [base]
   );
 
-  const incrementApi = useCallback(
+  const incrementApi = useGenerator(
     function* () {
       setPending(true);
-      const inc: Awaited<ReturnType<typeof theApi>> = yield theApi(base);
+      const inc: Awaited<ReturnType<typeof api>> = yield api(base);
       setCount((count) => count + inc);
       setPending(false);
       return inc;
