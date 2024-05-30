@@ -424,11 +424,11 @@ You can find a fully working todo example in the ["examples/src/todomvc"](./exam
 
 Although [jotai-scope](https://jotai.org/docs/extensions/scope), [unstated-next](https://github.com/jamiebuilds/unstated-next) and [constate](https://github.com/diegohaz/constate) can achieve the same functionality, they do not view React Context as a powerful DI pattern.
 
-## React DI in the wild
+# React DI in the wild
 
 The above pattern has 2 small issues:
 
-It requires boilerplate code to create a Context, Provider, and use a shortcut hook for a custom hook.
+1. It requires boilerplate code to create a Context, Provider, and use a shortcut hook for a custom hook.
 
 ```tsx
 function useTodo(id) {}
@@ -441,9 +441,9 @@ const useTodo = (selector) => useCs(TodosCtx, selector);
 
 2. Context providers must be in the correct order; otherwise, the context can't be found.
 
-# HIAYN Dependency Injection
+## HIAYN Dependency Injection
 
-The HIAYN library provides a much handier way to solve the above issues with minimal APIs. Yes, I promised there wouldn't be new APIs. Think of this more as syntax sugar rather than new APIs. Underneath, it's almost the same as writing it by hand.
+HIAYN library provides a much handier way to solve the above issues with minimal APIs. Yes, I promised there wouldn't be new APIs. Think of this more as syntax sugar rather than new APIs. Underneath, it's almost the same as writing it by hand.
 
 Let's say we have 3 custom hooks: `useApi` uses the context of `useHttp`, and `useTodos` uses `useApi`.
 
@@ -487,7 +487,9 @@ export function TodoApp() {
 }
 ```
 
-There's no need to create a Context and Provider. A custom hook itself is an identifiable context, and custom hooks can be provided directly. Note that the order of custom hooks in `providers` can be arbitrary. It will automatically figure out the correct order and will throw an error if a circular dependency is detected.
+No need to create a Context and Provider. A custom hook itself is an identifiable context, and custom hooks can be provided directly.
+
+Note that the order of custom hooks in `providers` can be arbitrary. It will automatically figure out the correct order and will throw an error if a circular dependency is detected.
 
 ## Arguments
 
