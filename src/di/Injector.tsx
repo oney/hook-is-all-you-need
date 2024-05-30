@@ -1,4 +1,4 @@
-import { PropsWithChildren } from "react";
+import React, { PropsWithChildren } from "react";
 import { Context, createContext } from "use-context-selector";
 import { clear, initializerMap, valueMap } from "./initializer";
 import { InjectorProvider, providerSymbol } from "./types";
