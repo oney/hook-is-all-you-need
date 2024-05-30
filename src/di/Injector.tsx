@@ -1,13 +1,13 @@
 import { PropsWithChildren } from "react";
 import { Context, createContext } from "use-context-selector";
 import { clear, initializerMap, valueMap } from "./initializer";
-import { DependencyProvider, providerSymbol } from "./types";
+import { InjectorProvider, providerSymbol } from "./types";
 
-export function Dependency({
+export function Injector({
   children,
   providers,
 }: PropsWithChildren<{
-  providers: DependencyProvider[];
+  providers: InjectorProvider[];
 }>): JSX.Element {
   clear();
 

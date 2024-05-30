@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-pascal-case */
 import { useCallback, useEffect, useState } from "react";
 import { createContext } from "use-context-selector";
-import { Dependency, useInject } from "../hook-is-all-you-need";
+import { Injector, useInject } from "hook-is-all-you-need";
 
 let id = 1;
 
@@ -75,23 +75,43 @@ const CustomApi = createContext<ReturnType<typeof useApi>>(undefined as any);
 
 export function DiExample() {
   return (
-    <Dependency
+    <Injector
       providers={[
         useApi,
         useHttp,
         // eslint-disable-next-line react-hooks/rules-of-hooks
         [useQuery, () => useQuery("foo.com")],
+      ]}
+    >
+      <_DiExample />
+    </Injector>
+  );
+}
+
+function _DiExample() {
+  return (
+    <div>
+      <Todos />
+      <Todos />
+    </div>
+  );
+}
+
+export function Todos() {
+  return (
+    <Injector
+      providers={[
         useTodos,
         // eslint-disable-next-line react-hooks/rules-of-hooks
         // provide(CustomApi, () => useApi()),
       ]}
     >
-      <_DiExample />
-    </Dependency>
+      <_Todos />
+    </Injector>
   );
 }
 
-export function _DiExample() {
+function _Todos() {
   const todos = useInject(useTodos, (c) => c.todos);
   const pending = useInject(useTodos, (c) => c.pending);
   const fetchTodos = useInject(useTodos, (c) => c.fetchTodos);
@@ -104,7 +124,9 @@ export function _DiExample() {
   return (
     <div>
       <div>
-        <button onClick={() => addTodo("new todo")}>Add</button>
+        <button disabled={pending} onClick={() => addTodo("new todo")}>
+          Add
+        </button>
         {pending && <span>pending</span>}
       </div>
       <div>todos: {todos.map((t) => t.title).join(", ")}</div>

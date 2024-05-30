@@ -2,7 +2,7 @@
 
 Hook Is All You Need (HIAYN) is a design pattern for React developers to manage complex state without needing to learn any third-party state management libraries.
 
-HIAYN offers a 0-API, 0-learning curve, 0-boilerplate solution that is performant, DevTools-powered (with time travel and logging), supports async flow, and provides compositional, immutable, multi-store state management. It is also test-friendly and TypeScript-safe.
+HIAYN offers a 0-API, 0-learning curve, 0-boilerplate solution that is performant, DevTools-powered (with time travel and logging), supports async flow, and provides compositional, immutable, multi-store state management. It is also test-friendly and 100% TypeScript.
 
 ## Why HIAYN?
 
@@ -287,11 +287,11 @@ function Root() {
 
 As our React app grows larger, props drilling becomes a significant issue. Props drilling violates the principle of Separation of Concerns (SOC), where a parent component accepts a prop to pass to its child component without directly using it.
 
-Note that Redux, Zustand, and Jotai do not entirely solve props drilling. While they improve performance by re-rendering only when subscribed data changes, we still need to pass some data, like an id or index, to deeply nested child components.
+Note that Redux, Zustand, and Jotai do not entirely solve props drilling for sub and non-single data. While they improve performance by re-rendering only when subscribed data changes, we still need to pass some data, like an id, index or key, to deeply nested child components.
 
-React Context is already a robust Dependency Injection system.
+React Context is already a robust Dependency Injection system which can perpermanently solve props drilling.
 
-Essentially, a custom hook serves as a data model. For instance, consider a `useTodos` custom hook.
+First, we need to regard custom hook as a data model. For instance, consider a `useTodos` custom hook.
 
 ```tsx
 export function useTodos() {
@@ -362,15 +362,27 @@ The benefits include:
 
 ## Split state
 
-In Redux, we still need to pass the todo id to a child component and use the id in the dispatched action.
+In Redux, we still need to pass the todo itself or its id to a deeply nested child component and use the id in the dispatched action.
 
 ```tsx
 export function TodoItem({ todo }) {
   const update = (title) => dispatch(updateTitle(todo.id, title));
 }
+
+export const todosSlice = createSlice({
+  name: "todos",
+  initialState: { todos: [] },
+  reducers: {
+    updateTitle: (state, action) => {
+      const { id, title } = action.payload;
+      const todo = state.todos.find((todo) => todo.id === id);
+      todo?.title = title;
+    },
+  },
+});
 ```
 
-However, React Context used as a Dependency Injection can do this elegantly.
+React Context used as a Dependency Injection can do this much elegantly.
 
 Define the `useTodo` hook as the Todo data model.
 
@@ -402,12 +414,99 @@ export function TodoItem({ id }) {
 }
 
 function _TodoItem() {
-  const update = useCs(TodoCtx, (ctx) => ctx.todo.updateTodo);
+  const update = useCs(TodoCtx, (ctx) => ctx.updateTodo);
 }
 ```
 
 With this approach, any deeply nested child components of `TodoItem` can access the `useTodo` data model without deeply passing props and while remaining performant.
 
-You can find a fully working todo example in the ["examples"](./examples/) folder.
+You can find a fully working todo example in the ["examples/src/todomvc"](./examples/src/todomvc/) folder.
 
 Although [jotai-scope](https://jotai.org/docs/extensions/scope), [unstated-next](https://github.com/jamiebuilds/unstated-next) and [constate](https://github.com/diegohaz/constate) can achieve the same functionality, they do not view React Context as a powerful DI pattern.
+
+## React DI in the wild
+
+The above pattern has 2 small issues:
+
+It requires boilerplate code to create a Context, Provider, and use a shortcut hook for a custom hook.
+
+```tsx
+function useTodo(id) {}
+const TodoCtx = createContext(undefined);
+function TodoProvider({ id, children }) {
+  return <TodoCtx.Provider value={useTodo(id)}>{children}</TodoCtx.Provider>;
+}
+const useTodo = (selector) => useCs(TodosCtx, selector);
+```
+
+2. Context providers must be in the correct order; otherwise, the context can't be found.
+
+# HIAYN Dependency Injection
+
+The HIAYN library provides a much handier way to solve the above issues with minimal APIs. Yes, I promised there wouldn't be new APIs. Think of this more as syntax sugar rather than new APIs. Underneath, it's almost the same as writing it by hand.
+
+Let's say we have 3 custom hooks: `useApi` uses the context of `useHttp`, and `useTodos` uses `useApi`.
+
+```tsx
+function useHttp() {}
+function useApi() {
+  const fetch = useContextSelector(HttpContext, (c) => c.fetch);
+}
+function useTodos() {
+  const api = useContextSelector(ApiContext, (c) => c.api);
+}
+function TodoApp() {
+  return (
+    <Nest>
+      <HttpProvider />
+      <ApiProvider />
+      <TodosProvider />
+      <App />
+    </Nest>
+  );
+}
+```
+
+With HIAYN's Dependency Injection, you can do it like this:
+
+```tsx
+function useHttp() {}
+function useApi() {
+  const fetch = useInject(useHttp, (c) => c.fetch);
+}
+function useTodos() {
+  const api = useInject(useApi, (c) => c.api);
+}
+
+export function TodoApp() {
+  return (
+    <Injector providers={[useApi, useHttp, useTodos]}>
+      <_TodoApp />
+    </Injector>
+  );
+}
+```
+
+There's no need to create a Context and Provider. A custom hook itself is an identifiable context, and custom hooks can be provided directly. Note that the order of custom hooks in `providers` can be arbitrary. It will automatically figure out the correct order and will throw an error if a circular dependency is detected.
+
+## Arguments
+
+If the custom hook needs arguments, its provider is a tuple of the hook and a factory function.
+
+```tsx
+export function TodoApp(endpoint) {
+  return (
+    <Injector
+      providers={[
+        useHttp,
+        [useApi, () => useApi(endpoint)], // <-- [hook, factory] tuple
+        useTodos,
+      ]}
+    >
+      <_TodoApp />
+    </Injector>
+  );
+}
+```
+
+You can find the example in the ["examples/src/di"](./examples/src/di) folder.
