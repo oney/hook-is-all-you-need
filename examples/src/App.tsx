@@ -6,6 +6,7 @@ import {
 } from "hook-is-all-you-need";
 import { Counter } from "./counter/Counter";
 import { TodoMvc } from "./todomvc";
+import { DiExample } from "./di";
 
 const interceptor = new Interceptor();
 
@@ -22,7 +23,8 @@ function App() {
           </ScopeProvider>
         </ScopeProvider>
       </InterceptorContext.Provider>
-      <TodoMvc />
+      {/* <TodoMvc /> */}
+      <DiExample />
     </>
   );
 }
