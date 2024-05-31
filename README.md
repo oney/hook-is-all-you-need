@@ -1,4 +1,4 @@
-# Hook Is All You Need (HIAYN)
+# 🪝 Hook Is All You Need (HIAYN)
 
 Hook Is All You Need (HIAYN) is a design pattern for React developers to manage complex state without needing to learn any third-party state management libraries.
 
@@ -162,6 +162,9 @@ It’s a 0-API, 0-learning curve, 0-boilerplate, DevTools-powered, test-friendly
   - `args` are the action payload
   - `deps` are static data in the action creator
 - Reducers are non-reusable and useless
+- Advantages of custom hooks over Redux:
+  - Custom hooks allow for testing of computed values directly
+  - Callbacks as closures can carry payload values
 
 ## Async flow
 
