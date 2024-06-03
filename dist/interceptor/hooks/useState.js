@@ -31,7 +31,7 @@ function useState(initialState) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [state, setState_] = real_react_1.React.useState(initialState);
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const setState = (0, react_1.useCallback)(function (action_) {
+    const setState = real_react_1.React.useCallback(function (action_) {
         const [id, action] = interceptor
             ? interceptor.preState(action_, definitionRef.current)
             : [-1, action_];

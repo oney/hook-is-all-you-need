@@ -38,6 +38,7 @@ function formatTrace(stackframes) {
             break;
         if (sf.functionName === "renderWithHooks")
             break;
+        // if (sf.fileName?.includes("hook-is-all-you-need/interceptor/")) continue;
         hookTraces.push({
             varName: (0, pattern_1.varNameFromPrevLines)(sf.prevLines),
             functionName: sf.functionName,

@@ -1,7 +1,6 @@
 import {
   Dispatch,
   SetStateAction,
-  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -48,7 +47,7 @@ export function useState<S>(
   const [state, setState_] = React.useState(initialState);
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const setState = useCallback(
+  const setState = React.useCallback(
     function (action_: SetStateAction<S>) {
       const [id, action] = interceptor
         ? interceptor.preState(action_, definitionRef.current)

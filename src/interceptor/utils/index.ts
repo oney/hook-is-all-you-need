@@ -34,6 +34,7 @@ export function formatTrace(stackframes: StackFrame[]) {
     const sf = stackframes[i];
     if (!validFuncName(sf.functionName)) break;
     if (sf.functionName === "renderWithHooks") break;
+    // if (sf.fileName?.includes("hook-is-all-you-need/interceptor/")) continue;
     hookTraces.push({
       varName: varNameFromPrevLines(sf.prevLines),
       functionName: sf.functionName,

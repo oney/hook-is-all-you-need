@@ -1,6 +1,6 @@
 {
   "name": "hook-is-all-you-need",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Hook is all you need",
   "main": "dist/index.js",
   "repository": {
